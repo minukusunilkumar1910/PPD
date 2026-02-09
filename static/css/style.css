@@ -1,0 +1,405 @@
+body {
+   height: 100vh;
+   margin: 0;
+   padding: 0;
+   display: flex;
+   flex-direction: column;
+   /* overflow: hidden; */
+}
+
+.container-fluid {
+   flex: 1;
+   display: flex;
+   flex-direction: column;
+   height: 100%;
+   padding: 1rem;
+}
+
+.row {
+   flex: 1;
+}
+
+@keyframes boardFloat {
+   0% { transform: translateY(0); }
+   50% { transform: translateY(-7px); }
+   100% { transform: translateY(0); }
+}
+
+.game-board {
+   display: grid;
+   grid-template-columns: repeat(10, 1fr);
+   gap: 2.5px;
+   background-color: var(--bs-dark);
+   padding: 10px;
+   border-radius: 8px;
+   height: 90vh;
+   /* padding-left: 7rem; */
+   /* justify-content: ; */
+   aspect-ratio: 1;
+   animation: boardFloat 6s infinite ease-in-out;
+   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+.col-md-8
+{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+@keyframes cellShimmer {
+   0% { background-position: -300% 0; }
+   100% { background-position: 300% 0; }
+}
+
+.cell {
+   aspect-ratio: 1;
+   background-color: var(--bs-dark-bg-subtle);
+   border-radius: 4px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   position: relative;
+   padding: 4px;
+   border: 1px solid black;
+   font-size: 0.8rem;
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   background-image: linear-gradient(
+       90deg, 
+       transparent, 
+       rgba(255, 255, 255, 0.092), 
+       transparent
+   );
+   background-size: 200% 100%;
+   animation: cellShimmer 7s infinite linear;
+}
+
+.cell:hover {
+   transform: scale(1.15);
+   
+}
+
+.cell .number {
+   font-size: 0.85rem;
+   font-weight: bold;
+   margin-bottom: 2px;
+}
+
+.cell .element {
+   font-size: 0.8rem;
+   color: var(--bs-info);
+}
+
+.cell .power-hint {
+   font-size: 0.6rem;
+   position: absolute;
+   bottom: 2px;
+   text-align: center;
+   opacity: 0;
+   transition: opacity 0.3s ease;
+}
+
+.cell:hover .power-hint {
+   opacity: 7;
+   /* color: rgb(251, 248, 251); */
+   font-weight: 900;
+   background-color: rgba(0, 0, 0, 0.422);
+   height: 90%;
+   text-align: center;
+}
+
+/* Power cell styles */
+@keyframes powerPulseGlow {
+   0% { box-shadow: 0 0 5px currentColor; }
+   50% { box-shadow: 0 0 20px currentColor; }
+   100% { box-shadow: 0 0 5px currentColor; }
+}
+
+.cell.power-green {
+   background-color: rgba(25, 135, 84, 0.2);
+   border: 1.4px solid var(--bs-success);
+   animation: powerPulseGlow 3s infinite;
+   color: var(--bs-success);
+}
+
+.cell.power-red {
+   background-color: rgba(220, 53, 69, 0.2);
+   border: 1.4px solid var(--bs-danger);
+   animation: powerPulseGlow 3s infinite;
+   color: var(--bs-danger);
+}
+
+.cell.power-standard {
+   background-color: rgba(13, 110, 253, 0.2);
+   border: 1.5px solid var(--bs-primary);
+   animation: powerPulseGlow 3s infinite;
+   color: var(--bs-primary);
+}
+
+/* Power activation animations */
+@keyframes powerActivation {
+   0% {
+       transform: scale(1) rotate(0deg);
+       box-shadow: 0 0 0 0 rgba(var(--bs-success-rgb), 0.4);
+   }
+   25% {
+       transform: scale(1.1) rotate(-5deg);
+       box-shadow: 0 0 30px 15px rgba(var(--bs-success-rgb), 0.3);
+   }
+   75% {
+       transform: scale(1.2) rotate(5deg);
+       box-shadow: 0 0 20px 10px rgba(var(--bs-success-rgb), 0.2);
+   }
+   100% {
+       transform: scale(1) rotate(0deg);
+       box-shadow: 0 0 0 0 rgba(var(--bs-success-rgb), 0);
+   }
+}
+
+@keyframes negativePowerActivation {
+   0% {
+       transform: scale(1);
+       box-shadow: 0 0 0 0 rgba(var(--bs-danger-rgb), 0.4);
+   }
+   50% {
+       transform: scale(1.2);
+       box-shadow: 0 0 20px 10px rgba(var(--bs-danger-rgb), 0.2);
+   }
+   100% {
+       transform: scale(1);
+       box-shadow: 0 0 0 0 rgba(var(--bs-danger-rgb), 0);
+   }
+}
+
+.power-activating-positive {
+   animation: powerActivation 1s ease-in-out;
+}
+
+.power-activating-negative {
+   animation: negativePowerActivation 1s ease-in-out;
+}
+
+/* Player message animations */
+@keyframes messagePopup {
+   0% {
+       transform: scale(0.8);
+       opacity: 0;
+   }
+   50% {
+       transform: scale(1.1);
+   }
+   100% {
+       transform: scale(1);
+       opacity: 1;
+   }
+}
+
+.power-message {
+   animation: messagePopup 0.5s ease-out;
+}
+
+.player-area {
+   background-color: var(--bs-dark-bg-subtle);
+   padding: 20px;
+   border-radius: 8px;
+   height: 100%;
+   display: flex;
+   flex-direction: column;
+}
+
+.player-message {
+   color: rgb(60, 202, 245);
+   min-height: 20px;
+   /* margin-bottom: 10px; */
+   font-size: 1rem;
+   font-style: arial;
+   font-weight: bold;
+}
+
+/* Different colors for different message types */
+.player-message.your-turn {
+   color: var(--bs-success);
+   font-weight: bold;
+   font-size: 1.5rem;
+}
+
+.player-message.waiting {
+   color:black;
+   font-style: arial;
+   font-size: 1rem;
+   font-weight: bold;
+
+}
+
+.player-message.need-one {
+   color:rgb(66, 233, 230);
+   font-weight: bold;
+   font-size: 1rem;
+   font-style: arial;
+}
+
+.player-message.error {
+   color:red;
+   font-weight: bold;
+   font-size: 1rem;
+   font-style: arial;
+}
+
+.dice-area {
+   cursor: pointer;
+   padding: 20px;
+   background: linear-gradient(145deg, var(--bs-dark) 0%, rgba(var(--bs-dark-rgb), 0.7) 100%);
+   border-radius: 12px;
+   margin: auto 0;
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   border: 1px solid rgba(255, 255, 255, 0.05);
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+   
+}
+
+.dice-area:hover {
+   transform: scale(1.05) translateY(-5px);
+   box-shadow: 0 8px 24px rgba(var(--bs-primary-rgb), 0.2);
+   border-color: rgba(var(--bs-primary-rgb), 0.2);
+}
+
+.dice-area:active {
+   transform: scale(0.95);
+}
+
+@keyframes diceRoll {
+   0% { transform: rotate(0deg) scale(1); }
+   25% { transform: rotate(90deg) scale(1.2); }
+   50% { transform: rotate(180deg) scale(1); }
+   75% { transform: rotate(270deg) scale(1.2); }
+   100% { transform: rotate(360deg) scale(1); }
+}
+
+.dice.rolling {
+   animation: diceRoll 0.8s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
+.dice {
+   font-size: 3rem;
+   color: var(--bs-light);
+}
+
+/* Add these new styles at the appropriate location in the file */
+
+@keyframes diceBlink {
+   0% { opacity: 1; }
+   50% { opacity: 0.5; }
+   100% { opacity: 1; }
+}
+
+.dice-active {
+   animation: diceBlink 1s infinite;
+}
+
+.winner-modal {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.8);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 1000;
+   animation: modalFadeIn 0.5s ease-out;
+}
+
+@keyframes modalFadeIn {
+   from {
+       opacity: 0;
+       transform: scale(0.8);
+   }
+   to {
+       opacity: 1;
+       transform: scale(1);
+   }
+}
+
+.winner-content {
+   background-color: var(--bs-dark-bg-subtle);
+   padding: 2rem;
+   border-radius: 1rem;
+   text-align: center;
+   box-shadow: 0 0 20px rgba(var(--bs-primary-rgb), 0.3);
+   animation: contentBounce 0.5s ease-out;
+}
+
+@keyframes contentBounce {
+   0% { transform: scale(0.3); }
+   50% { transform: scale(1.1); }
+   100% { transform: scale(1); }
+}
+
+.winner-content h2 {
+   color: var(--bs-success);
+   margin-bottom: 1rem;
+}
+
+
+/* Player specific colors */
+#dice1 .dice {
+   color:rgb(69, 105, 250);
+}
+
+#dice2 .dice {
+   color: var(--bs-danger);
+}
+
+.player1-token, .player2-token {
+   width: 12px;
+   height: 12px;
+   border-radius: 50%;
+   position: absolute;
+   transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+   animation: tokenPulse 2s infinite;
+}
+
+@keyframes tokenPulse {
+   0% { transform: scale(1); }
+   50% { transform: scale(1.2); }
+   100% { transform: scale(1); }
+}
+
+.player1-token {
+   background-color: var(--bs-primary);
+   top: 4px;
+   left: 4px;
+}
+
+.player2-token {
+   background-color: var(--bs-danger);
+   top: 4px;
+   right: 4px;
+}
+.green
+{
+   /* background-color: green; */
+   height: 60px;
+}
+.player-area
+{
+ background-color: rgba(24, 24, 24, 0.443);   
+ border: 4px solid rgba(255, 255, 255, 0.05);
+}
+h1
+{
+   color:rgb(90, 205, 199);
+   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+   font-size: 3rem;
+   font-weight: 800;
+
+}
+
+h4{
+   color: aqua;
+}
+h4:hover
+{
+   color: aliceblue;
+}
