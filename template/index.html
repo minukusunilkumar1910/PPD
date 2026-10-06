@@ -2,56 +2,333 @@
 <html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Periodic Proo</title>
-    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="shortcut icon" href="./icon.png" type="image/x-icon">
-    <link href="/static/css/style.css" rel="stylesheet">
-    <script src="https://unpkg.com/tone"></script>
-</head>
-<body>  
-    <div class="container-fluid py-4">
-        <div class="green">
-            <div class="col-12 text-center mb-4">
-                <h1>Periodic Proo</h1>
-            </div>
-        </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Periodic Pro — The Ultimate Chemical Race</title>
+    <meta name="description" content="A futuristic, periodic-table powered board game. Master all 100 elements, unleash elemental powers, deploy shields, and race to Fermium!">
+    <meta name="theme-color" content="#090d16">
 
-        <div class="row">
-            <div class="col-md-2">
-                <div class="player-area text-center">
-                    <h4>Player 1</h4>
-                    <div id="message1" class="player-message"></div>
-                    <div class="dice-area" id="dice1">
-                        <div class="dice">
-                            <i class="fas fa-dice-six"></i>
-                        </div>
-                        <div class="mt-2">Click to roll</div>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/static/icon.png" type="image/x-icon">
+    
+    <!-- Custom Stylesheet -->
+    <link href="/static/css/style.css" rel="stylesheet">
+
+    <!-- Audio & Celebration Libraries -->
+    <script src="https://unpkg.com/tone"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Top Navigation Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-badge">
+                    <div class="atom-spinner">
+                        <div class="atom-core"></div>
+                        <div class="atom-ring ring-1"></div>
+                        <div class="atom-ring ring-2"></div>
                     </div>
-                    <div class="position mt-3">Position: <span id="pos1">0</span></div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">PERIODIC <span class="neon-text">PRO</span></h1>
+                        <span class="brand-tagline">100 Elements • Chemical Arena</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-8">
-                <div id="game-board" class="game-board"></div>
+            <!-- Central Turn Display (Desktop & Tablet) -->
+            <div class="header-center">
+                <div class="turn-status-pill" id="turn-pill">
+                    <span class="pulse-dot"></span>
+                    <span id="turn-pill-text">Player 1's Turn</span>
+                </div>
             </div>
 
-            <div class="col-md-2">
-                <div class="player-area text-center">
-                    <h4>Player 2</h4>
-                    <div id="message2" class="player-message"></div>
-                    <div class="dice-area" id="dice2">
-                        <div class="dice">
-                            <i class="fas fa-dice-six"></i>
-                        </div>
-                        <div class="mt-2">Click to roll</div>
+            <!-- Header Action Controls -->
+            <div class="header-right">
+                <div class="mode-select-wrapper">
+                    <button class="control-btn mode-btn active" id="btn-mode-2p" title="2 Players Pass & Play">
+                        <i class="fas fa-user-friends"></i> <span class="btn-label">2P Local</span>
+                    </button>
+                    <button class="control-btn mode-btn" id="btn-mode-ai" title="Play vs AI Chem-Bot">
+                        <i class="fas fa-robot"></i> <span class="btn-label">vs AI</span>
+                    </button>
+                </div>
+
+                <button class="control-btn icon-only" id="btn-codex" title="Powers & Periodic Codex" aria-label="Open Powers Guide">
+                    <i class="fas fa-book-open"></i>
+                </button>
+
+                <button class="control-btn icon-only" id="btn-sound" title="Toggle Sound" aria-label="Toggle Sound">
+                    <i class="fas fa-volume-up" id="sound-icon"></i>
+                </button>
+
+                <button class="control-btn icon-only danger-hover" id="btn-reset" title="Restart Match" aria-label="Restart Match">
+                    <i class="fas fa-redo-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Game Battlefield -->
+        <main class="game-container">
+            <!-- Left Player Sidebar: Player 1 (Cyan/Neon Blue) -->
+            <aside class="player-panel player-1 active" id="panel-player-1">
+                <div class="player-card-header">
+                    <div class="player-avatar-box avatar-p1">
+                        <i class="fas fa-atom"></i>
                     </div>
-                    <div class="position mt-3">Position: <span id="pos2">0</span></div>
+                    <div class="player-info">
+                        <h2 class="player-name" id="p1-name">Player 1</h2>
+                        <span class="player-type-badge">Cyan Isotope</span>
+                    </div>
+                </div>
+
+                <!-- Position & Progress -->
+                <div class="progress-box">
+                    <div class="position-display">
+                        <span class="pos-label">Tile Position</span>
+                        <span class="pos-value" id="pos1">0<span class="pos-max">/100</span></span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill fill-p1" id="p1-progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="current-tile-element" id="p1-current-element">Standing at Start</div>
+                </div>
+
+                <!-- Active Status Badges -->
+                <div class="status-effects-container">
+                    <div class="status-effects-title">Active Enhancements</div>
+                    <div class="status-badges" id="p1-status-badges">
+                        <span class="badge-empty">No active buffs</span>
+                    </div>
+                </div>
+
+                <!-- Dice Area Player 1 -->
+                <div class="player-dice-station">
+                    <div class="dice-3d-box" id="dice1" role="button" tabindex="0" aria-label="Roll Dice for Player 1">
+                        <div class="dice-face" id="dice1-face">
+                            <i class="fas fa-dice-one"></i>
+                        </div>
+                    </div>
+                    <button class="roll-trigger-btn btn-p1" id="btn-roll-1">
+                        <i class="fas fa-dice"></i> ROLL DICE
+                    </button>
+                    <div class="dice-hint-text" id="dice1-hint">Click or press Spacebar</div>
+                </div>
+
+                <!-- Message Box -->
+                <div class="player-message-box" id="message1">Roll a 1 to enter the arena!</div>
+            </aside>
+
+            <!-- Center Column: 10x10 Snake & Ladder Board -->
+            <section class="board-wrapper">
+                <!-- Mobile Compact Player Deck (<860px) -->
+                <div class="mobile-player-deck" id="mobile-player-deck">
+                    <div class="mobile-p-card p1-card active" id="m-card-1">
+                        <div class="m-avatar avatar-p1"><i class="fas fa-atom"></i></div>
+                        <div class="m-p-details">
+                            <div class="m-p-name">Player 1</div>
+                            <div class="m-p-pos">Tile <span id="m-pos1-val">0</span>/100</div>
+                            <div class="m-p-badges" id="m-badges1"></div>
+                        </div>
+                    </div>
+                    <div class="mobile-p-card p2-card" id="m-card-2">
+                        <div class="m-avatar avatar-p2"><i class="fas fa-biohazard" id="m-p2-avatar-icon"></i></div>
+                        <div class="m-p-details">
+                            <div class="m-p-name" id="m-name2">Player 2</div>
+                            <div class="m-p-pos">Tile <span id="m-pos2-val">0</span>/100</div>
+                            <div class="m-p-badges" id="m-badges2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Toast Notification for Powers -->
+                <div class="power-toast-banner" id="power-toast" aria-live="polite">
+                    <i class="toast-icon fas fa-bolt"></i>
+                    <span class="toast-message" id="power-toast-text">Game started! Roll 1 to deploy.</span>
+                </div>
+
+                <!-- The 10x10 Matrix -->
+                <div id="game-board" class="game-board" role="grid" aria-label="Periodic Table Board"></div>
+
+                <!-- Board Legend Footer -->
+                <div class="board-legend">
+                    <div class="legend-item"><span class="legend-dot dot-positive"></span> Booster Power</div>
+                    <div class="legend-item"><span class="legend-dot dot-negative"></span> Hazard Cell</div>
+                    <div class="legend-item"><span class="legend-dot dot-tactical"></span> Quantum Effect</div>
+                    <div class="legend-item"><span class="legend-dot dot-start"></span> Start (#1)</div>
+                    <div class="legend-item"><span class="legend-dot dot-finish"></span> Finish (#100)</div>
+                </div>
+            </section>
+
+            <!-- Right Player Sidebar: Player 2 (Magenta/Crimson) -->
+            <aside class="player-panel player-2" id="panel-player-2">
+                <div class="player-card-header">
+                    <div class="player-avatar-box avatar-p2">
+                        <i class="fas fa-biohazard" id="p2-avatar-icon"></i>
+                    </div>
+                    <div class="player-info">
+                        <h2 class="player-name" id="p2-name">Player 2</h2>
+                        <span class="player-type-badge" id="p2-type-badge">Crimson Rad</span>
+                    </div>
+                </div>
+
+                <!-- Position & Progress -->
+                <div class="progress-box">
+                    <div class="position-display">
+                        <span class="pos-label">Tile Position</span>
+                        <span class="pos-value" id="pos2">0<span class="pos-max">/100</span></span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill fill-p2" id="p2-progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="current-tile-element" id="p2-current-element">Standing at Start</div>
+                </div>
+
+                <!-- Active Status Badges -->
+                <div class="status-effects-container">
+                    <div class="status-effects-title">Active Enhancements</div>
+                    <div class="status-badges" id="p2-status-badges">
+                        <span class="badge-empty">No active buffs</span>
+                    </div>
+                </div>
+
+                <!-- Dice Area Player 2 -->
+                <div class="player-dice-station">
+                    <div class="dice-3d-box" id="dice2" role="button" tabindex="0" aria-label="Roll Dice for Player 2">
+                        <div class="dice-face" id="dice2-face">
+                            <i class="fas fa-dice-one"></i>
+                        </div>
+                    </div>
+                    <button class="roll-trigger-btn btn-p2" id="btn-roll-2">
+                        <i class="fas fa-dice"></i> ROLL DICE
+                    </button>
+                    <div class="dice-hint-text" id="dice2-hint">Waiting for turn</div>
+                </div>
+
+                <!-- Message Box -->
+                <div class="player-message-box" id="message2">Awaiting turn...</div>
+            </aside>
+        </main>
+
+        <!-- Mobile Bottom Control Drawer (Only displayed on screens < 768px) -->
+        <div class="mobile-action-bar" id="mobile-action-bar">
+            <div class="mobile-player-summary">
+                <div class="mobile-p-tag" id="mobile-turn-label">
+                    <span class="pulse-dot"></span> <strong id="mobile-turn-player">Player 1</strong>
+                </div>
+                <div class="mobile-pos-indicator">
+                    <span class="mobile-pos-p1">P1: <b id="m-pos1">0</b></span>
+                    <span class="pos-divider">•</span>
+                    <span class="mobile-pos-p2">P2: <b id="m-pos2">0</b></span>
+                </div>
+            </div>
+            <button class="mobile-roll-btn" id="btn-mobile-roll">
+                <div class="m-dice-icon" id="m-dice-icon"><i class="fas fa-dice-six"></i></div>
+                <span id="mobile-btn-text">ROLL DICE</span>
+            </button>
+        </div>
+
+        <!-- Collapsible Mission Activity Log -->
+        <footer class="app-log-drawer" id="log-drawer">
+            <div class="log-header" id="log-header-toggle">
+                <div class="log-title"><i class="fas fa-terminal"></i> Battle Feed & Event Log</div>
+                <div class="log-actions">
+                    <span class="log-count-pill" id="log-count">0 events</span>
+                    <button class="log-toggle-btn" id="btn-toggle-log" aria-label="Toggle Log"><i class="fas fa-chevron-up" id="log-chevron"></i></button>
+                </div>
+            </div>
+            <div class="log-body" id="battle-log">
+                <div class="log-entry system"><span class="log-time">[00:00]</span> ⚡ System: Periodic Pro initialized. Roll 1 to deploy elements!</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL 1: Element Inspector Card Modal (When user clicks any tile) -->
+    <div class="app-modal-backdrop" id="element-modal" style="display: none;">
+        <div class="modal-card element-card">
+            <button class="modal-close-btn" id="btn-close-element-modal" aria-label="Close Modal">&times;</button>
+            <div class="element-modal-header" id="elem-modal-header">
+                <div class="elem-modal-number" id="elem-modal-number">#1</div>
+                <div class="elem-modal-symbol" id="elem-modal-symbol">H</div>
+                <div class="elem-modal-name" id="elem-modal-name">Hydrogen</div>
+                <span class="elem-modal-category" id="elem-modal-category">Reactive Nonmetal</span>
+            </div>
+            <div class="element-modal-body">
+                <div class="elem-power-box" id="elem-power-box">
+                    <div class="elem-power-type" id="elem-power-badge">POWER EFFECT</div>
+                    <div class="elem-power-desc" id="elem-power-desc">Standard element node.</div>
+                </div>
+                <div class="elem-lore-box">
+                    <div class="lore-title"><i class="fas fa-atom"></i> Chemical Profile</div>
+                    <p class="lore-text" id="elem-lore-text">The lightest and most abundant chemical substance in the universe.</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- MODAL 2: Powers Codex & Rules Guide Modal -->
+    <div class="app-modal-backdrop" id="codex-modal" style="display: none;">
+        <div class="modal-card codex-card">
+            <div class="codex-header">
+                <div class="codex-title">
+                    <i class="fas fa-book-open"></i> Element Powers Codex
+                </div>
+                <button class="modal-close-btn" id="btn-close-codex-modal" aria-label="Close Codex">&times;</button>
+            </div>
+            <div class="codex-filter-tabs">
+                <button class="codex-tab active" data-filter="all">All Powers</button>
+                <button class="codex-tab" data-filter="positive">⚡ Boosters</button>
+                <button class="codex-tab" data-filter="negative">☣️ Hazards</button>
+                <button class="codex-tab" data-filter="tactical">🛡️ Defense & Swaps</button>
+            </div>
+            <div class="codex-search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="codex-search-input" placeholder="Search element by name, symbol, or power...">
+            </div>
+            <div class="codex-list" id="codex-list-container">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Winner Celebration Modal -->
+    <div class="app-modal-backdrop" id="winner-modal" style="display: none;">
+        <div class="modal-card winner-card">
+            <div class="winner-trophy-glow">
+                <i class="fas fa-trophy trophy-icon"></i>
+            </div>
+            <h2 class="winner-title" id="winner-headline">🎉 PLAYER 1 WINS! 🎉</h2>
+            <p class="winner-subtitle">Master of the 100 Elements — Synthetic Apex Reached at Fermium!</p>
+            
+            <div class="winner-stats-grid">
+                <div class="stat-pill">
+                    <span class="stat-num" id="stat-total-rolls">0</span>
+                    <span class="stat-txt">Total Rolls</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-num" id="stat-powers-used">0</span>
+                    <span class="stat-txt">Powers Triggered</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-num" id="stat-hazards-dodged">0</span>
+                    <span class="stat-txt">Shields Deployed</span>
+                </div>
+            </div>
+
+            <button class="winner-replay-btn" id="btn-play-again">
+                <i class="fas fa-play"></i> Play Again
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="/static/js/game.js"></script>
 </body>
 </html>
